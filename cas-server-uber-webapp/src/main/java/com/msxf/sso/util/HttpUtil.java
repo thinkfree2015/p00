@@ -1,0 +1,68 @@
+package com.msxf.sso.util;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Scanner;
+
+/**
+ * Created by Administrator on 2015/1/28.
+ */
+public class HttpUtil {
+
+  
+    public static boolean isPhone(String userAgent) {
+
+        if (userAgent.contains("Mozilla/") && userAgent.contains("iPhone")) {
+            return true;
+        } else return userAgent.contains("Android") && userAgent.contains("Linux");
+    }
+
+    public static boolean isPhone(HttpServletRequest request) {
+        String serverName = request.getServerName();
+        String cityName = "\\.".split(serverName)[0];
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent.contains("Mozilla/") && userAgent.contains("iPhone")) {
+            return true;
+        } else if (userAgent.contains("Android") && userAgent.contains("Linux")) {
+            return true;
+        } else if(cityName.equals("m")){
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    public static boolean isWeixin(HttpServletRequest request) {
+        String serverName = request.getServerName();
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent.contains("MicroMessenger")){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public static String getHttpResponse(String urlStr, String requestStr) throws Exception {
+        URL url = new URL(urlStr);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        //PrintWriter writer =null;
+        if (requestStr != null && !requestStr.equals("")) {
+            connection.setDoOutput(true);
+            OutputStream outputStream = connection.getOutputStream();
+            outputStream.write(requestStr.getBytes("UTF-8"));
+            outputStream.flush();
+            /*writer = new PrintWriter(connection.getOutputStream());
+            writer.println(requestStr);
+            writer.flush();*/
+        }
+        Scanner scanner = new Scanner(connection.getInputStream());
+        StringBuilder responseStr = new StringBuilder();
+        while (scanner.hasNextLine()) {
+            responseStr.append(scanner.nextLine());
+        }
+
+        return responseStr.toString();
+    }
+
+}
